@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
 
 #include "src/camera.cpp"
 
@@ -21,6 +22,8 @@ float lastX;
 float lastY;
 bool firstMouse = true;
 
+void error_callback(int error, const char *description);
+
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -32,6 +35,8 @@ int main(void)
         std::runtime_error("could not initialize glfw");
     }
 
+    glfwSetErrorCallback(error_callback);
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Test Window", NULL, NULL);
@@ -41,6 +46,8 @@ int main(void)
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
@@ -54,6 +61,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     glfwDestroyWindow(window);
@@ -106,4 +114,9 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void error_callback(int error, const char *description)
+{
+    std::cout << "Error: " + std::to_string(*description) << std::endl;
 }
