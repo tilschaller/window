@@ -2,7 +2,7 @@
 
 CC = g++
 
-SRC = main.cpp glad/src/glad.c src/camera.cpp
+SRC = main.cpp glad/src/glad.c src/camera.cpp src/shader.cpp
 
 all:
 	${CC} ${SRC} -o window -lglfw -lglm

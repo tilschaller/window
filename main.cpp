@@ -10,6 +10,7 @@
 #include <string>
 
 #include "src/camera.cpp"
+#include "src/shader.cpp"
 
 int WIDTH = 800;
 int HEIGHT = 500;
@@ -50,6 +51,8 @@ int main(void)
     glfwSetCursorPosCallback(window, mouse_callback);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    Shader shader("shader/vertex.vs", "shader/fragment.fs");
 
     while (!glfwWindowShouldClose(window))
     {
