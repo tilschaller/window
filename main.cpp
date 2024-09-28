@@ -36,6 +36,8 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 int main(void)
 {
+    stbi_set_flip_vertically_on_load(true);
+
     if (!glfwInit())
     {
         std::runtime_error("could not initialize glfw");
@@ -59,11 +61,15 @@ int main(void)
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+    GLint maxTessLevel;
+    glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+    std::cout << "Max available tess level: " << maxTessLevel << std::endl;
+
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader("shader/vertex.vs", "shader/fragment.fs");
+    Shader shader("shader/vertex.vs", "shader/fragment.fs", nullptr, "shader/tessControl.tcs", "shader/tessEval.tes");
 
-    Terrain terrain("assets/iceland_heigthmap.png");
+    Terrain terrain("assets/iceland_heightmap.png", &shader);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -76,13 +82,14 @@ int main(void)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        shader.use();
+
         glm::mat4 projection =
             glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100000.0f);
         glm::mat4 view = camera.GetViewMatrix();
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
 
-        shader.use();
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
         shader.setMat4("model", model);
@@ -90,21 +97,14 @@ int main(void)
         // render the cube
         glBindVertexArray(terrain.terrainVAO);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        for (unsigned strip = 0; strip < terrain.numStrips; strip++)
-        {
-            glDrawElements(
-                GL_TRIANGLE_STRIP,                                                   // primitive type
-                terrain.numTrisPerStrip + 2,                                         // number of indices to render
-                GL_UNSIGNED_INT,                                                     // index data type
-                (void *)(sizeof(unsigned) * (terrain.numTrisPerStrip + 2) * strip)); // offset to starting index
-        }
+        glDrawArrays(GL_PATCHES, 0, terrain.NUM_PATCH_PTS * terrain.rez * terrain.rez);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     glfwDestroyWindow(window);
+    // this throws a segfault under Wayland for some reason
     glfwTerminate();
 
     return 0;

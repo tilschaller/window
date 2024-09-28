@@ -8,12 +8,15 @@
 
 #include "../deps/stb_image/stb_image.h"
 
+#include "shader.hpp"
+
 class Terrain
 {
   public:
-    unsigned int terrainVAO, terrainVBO, terrainIBO;
-    int numStrips, numTrisPerStrip;
+    const unsigned int NUM_PATCH_PTS = 4;
+    unsigned int terrainVAO, terrainVBO;
+    unsigned int rez;
 
-    Terrain(const char *);
+    Terrain(const char *location, Shader *shader);
     ~Terrain();
 };
