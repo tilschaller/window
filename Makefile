@@ -2,7 +2,7 @@
 
 CC = g++
 
-SRC = main.cpp glad/src/glad.c stb_image.h src/camera.cpp src/shader.cpp
+SRC = main.cpp deps/glad/src/glad.c deps/stb_image/stb_image.c src/camera.cpp src/shader.cpp src/terrain.cpp
 
 all:
 	${CC} ${SRC} -o window -lglfw -lglm

@@ -4,26 +4,22 @@
 #include <stdexcept>
 #include <string>
 
-#include "glad/include/glad/glad.h"
+#include "deps/glad/include/glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "stb_image.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "src/camera.cpp"
-#include "src/shader.cpp"
-#include "src/terrain.cpp"
+#include "header/camera.hpp"
+#include "header/shader.hpp"
+#include "header/terrain.hpp"
 
 int WIDTH = 800;
 int HEIGHT = 500;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-int useWireframe = 0;
-int displayGrayscale = 0;
 
 // camera - give pretty starting point
 Camera camera(glm::vec3(67.0f, 627.5f, 169.9f), glm::vec3(0.0f, 1.0f, 0.0f), -128.1f, -42.4f);
@@ -67,8 +63,7 @@ int main(void)
 
     Shader shader("shader/vertex.vs", "shader/fragment.fs");
 
-    Terrain terrain;
-    terrain.load_heightmap("assets/iceland_heightmap.png");
+    Terrain terrain("assets/iceland_heigthmap.png");
 
     while (!glfwWindowShouldClose(window))
     {
