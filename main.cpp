@@ -49,7 +49,6 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Test Window", NULL, NULL);
     if (!window)
     {
@@ -65,13 +64,11 @@ int main(void)
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
 
     Shader shader("shader/vertex.vs", "shader/fragment.fs");
 
     Terrain terrain;
-    GLuint terrainVAO = terrain.load_heightmap("assets/iceland_heightmap.png");
+    terrain.load_heightmap("assets/iceland_heightmap.png");
 
     while (!glfwWindowShouldClose(window))
     {
@@ -79,10 +76,34 @@ int main(void)
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        processInput(window);
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 projection =
+            glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100000.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
 
         shader.use();
+        // world transformation
+        glm::mat4 model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
+
+        // render the cube
+        glBindVertexArray(terrain.terrainVAO);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        for (unsigned strip = 0; strip < terrain.numStrips; strip++)
+        {
+            glDrawElements(
+                GL_TRIANGLE_STRIP,                                                   // primitive type
+                terrain.numTrisPerStrip + 2,                                         // number of indices to render
+                GL_UNSIGNED_INT,                                                     // index data type
+                (void *)(sizeof(unsigned) * (terrain.numTrisPerStrip + 2) * strip)); // offset to starting index
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -97,21 +118,13 @@ int main(void)
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
         camera.ProcessKeyboard(FORWARD, deltaTime);
-    }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
         camera.ProcessKeyboard(BACKWARD, deltaTime);
-    }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
         camera.ProcessKeyboard(LEFT, deltaTime);
-    }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
         camera.ProcessKeyboard(RIGHT, deltaTime);
-    }
 }
 
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
