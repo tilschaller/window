@@ -1,3 +1,3 @@
-For now its an simple GLFW window with an OpenGL Context
+GLFW Window with OpenGL context that renders terrain form heightmap
 
 Libs needed to compile: GLFW, GLM
