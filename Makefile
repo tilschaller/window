@@ -6,3 +6,6 @@ SRC = main.cpp deps/glad/src/glad.c deps/stb_image/stb_image.c src/camera.cpp sr
 
 all:
 	${CC} ${SRC} -o window -lglfw -lglm
+
+windows:
+	${CC} ${SRC} -o window -lglfw -lglm -lgdi32
